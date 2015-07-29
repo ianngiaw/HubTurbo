@@ -54,7 +54,8 @@ public class MenuControl extends MenuBar {
         Menu view = new Menu("View");
         view.getItems().addAll(
                 createRefreshMenuItem(),
-                createDocumentationMenuItem());
+                createDocumentationMenuItem(),
+                createTipsMenuItem());
 
         getMenus().addAll(file, newMenu, panels, boards, view);
     }
@@ -239,6 +240,14 @@ public class MenuControl extends MenuBar {
         });
         documentationMenuItem.setAccelerator(new KeyCodeCombination(KeyboardShortcuts.SHOW_DOCS));
         return documentationMenuItem;
+    }
+
+    private MenuItem createTipsMenuItem(){
+        MenuItem tipsMenuItem = new MenuItem("Tips");
+        tipsMenuItem.setOnAction(event -> {
+            ui.showTipsDialog();
+        });
+        return tipsMenuItem;
     }
 
     private MenuItem createRefreshMenuItem() {
