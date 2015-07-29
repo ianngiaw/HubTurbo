@@ -80,6 +80,7 @@ public class UI extends Application implements EventDispatcher {
     private RepositorySelector repoSelector;
     private LabelPicker labelPicker;
     private Label apiBox;
+    private TipsDialog tipsDialog;
 
     public static void main(String[] args) {
         Application.launch(args);
@@ -159,7 +160,14 @@ public class UI extends Application implements EventDispatcher {
         // Should only be called after panels have been initialized
         ensureSelectedPanelHasFocus();
         initialisePickers();
+
+        tipsDialog = new TipsDialog(mainStage, prefs);
+        if (prefs.isOpenTipsAtStartup()) {
+           showTipsDialog();
+        }
     }
+
+    public void showTipsDialog() {tipsDialog.show();}
 
     private void initialisePickers() {
         labelPicker = new LabelPicker(this, mainStage);
