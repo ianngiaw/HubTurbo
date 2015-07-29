@@ -58,6 +58,10 @@ public class Preferences {
         global.setLastOpenFilters(filter);
     }
 
+    public boolean isOpenTipsAtStartup () {return global.isOpenTipsAtStartup();}
+
+    public void setOpenTipsAtStartup (boolean openAtStartup) {global.setOpenTipsAtStartup(openAtStartup);}
+
     /**
      * Interface to configuration files
      */

@@ -29,6 +29,7 @@ public class GlobalConfig {
     private Map<String, List<String>> boards = new HashMap<>();
     private Map<String, Map<Integer, LocalDateTime>> markedReadTimes = new HashMap<>();
     private Map<String, String> keyboardShortcuts = new HashMap<>();
+    private boolean openTipsAtStartup = true;
 
     public GlobalConfig() {
     }
@@ -109,6 +110,10 @@ public class GlobalConfig {
         this.lastLoginUsername = username;
         this.lastLoginPassword = encrypt(password);
     }
+
+    public boolean isOpenTipsAtStartup () {return openTipsAtStartup;}
+
+    public void setOpenTipsAtStartup(boolean openAtStartup){openTipsAtStartup = openAtStartup;}
 
     private static byte[] encrypt(String lastPassword) {
         byte[] result = new byte[0];
