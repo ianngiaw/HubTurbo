@@ -30,6 +30,7 @@ public class GlobalConfig {
     private Map<String, Map<Integer, LocalDateTime>> markedReadTimes = new HashMap<>();
     private Map<String, String> keyboardShortcuts = new HashMap<>();
     private boolean openTipsAtStartup = true;
+    private List<String> viewedTips = new ArrayList<>();
 
     public GlobalConfig() {
     }
@@ -114,6 +115,10 @@ public class GlobalConfig {
     public boolean isOpenTipsAtStartup () {return openTipsAtStartup;}
 
     public void setOpenTipsAtStartup(boolean openAtStartup){openTipsAtStartup = openAtStartup;}
+
+    public boolean isTipViewed (String tipPath) {return viewedTips.contains(tipPath);}
+
+    public void addTipViewed (String tipPath) {viewedTips.add(tipPath);}
 
     private static byte[] encrypt(String lastPassword) {
         byte[] result = new byte[0];
