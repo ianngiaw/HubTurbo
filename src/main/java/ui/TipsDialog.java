@@ -14,10 +14,12 @@ import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import org.markdown4j.Markdown4jProcessor;
 import prefs.Preferences;
+import tips.TipsFileHandler;
 import ui.components.Dialog;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Optional;
 
 public class TipsDialog extends Dialog<Boolean> {
 
@@ -25,6 +27,7 @@ public class TipsDialog extends Dialog<Boolean> {
     private Stage parentStage;
     private Preferences prefs;
     private Markdown4jProcessor markdownProcessor;
+    private TipsFileHandler tipsFileHandler;
 
     private CheckBox showAtStartupCheckBox;
     private WebEngine engine;
@@ -33,6 +36,7 @@ public class TipsDialog extends Dialog<Boolean> {
         super(parentStage);
         this.parentStage = parentStage;
         this.prefs = prefs;
+        this.tipsFileHandler = TipsFileHandler.getInstance(prefs);
         this.markdownProcessor = new Markdown4jProcessor()
                 .addHtmlAttribute("style", "font-family:sans-serif", AFFECTED_TAGS);
         setValues();
@@ -41,12 +45,17 @@ public class TipsDialog extends Dialog<Boolean> {
     private void setValues() {
         this.showAtStartupCheckBox.setSelected(prefs.isOpenTipsAtStartup());
 
+        setTipContent(tipsFileHandler.getCurrentPath());
+    }
+
+    private void setTipContent (String path) {
+        String html;
         try {
-            String html = markdownProcessor.process(new File("docs/boards.md"));
-            engine.loadContent(html);
+            html = markdownProcessor.process(new File(path));
         } catch (IOException e) {
-            e.printStackTrace();
+            html = "Error loading tip";
         }
+        engine.loadContent(html);
     }
 
     @Override
@@ -74,6 +83,18 @@ public class TipsDialog extends Dialog<Boolean> {
         closeButton.setOnMouseClicked(event -> {
             this.close();
             this.parentStage.requestFocus();
+        });
+        nextTipButton.setOnMouseClicked(event -> {
+            Optional<String> path = tipsFileHandler.getNextPath();
+            if (path.isPresent()) {
+                setTipContent(path.get());
+            }
+        });
+        previousTipButton.setOnMouseClicked(event -> {
+            Optional<String> path = tipsFileHandler.getPreviousPath();
+            if (path.isPresent()) {
+                setTipContent(path.get());
+            }
         });
 
         borderPane.setTop(topLabel);
