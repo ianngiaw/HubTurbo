@@ -7,6 +7,11 @@ public class GitHubURL {
             "https://github.com/HubTurbo/HubTurbo/blob/release/docs/userGuide.md";
     public static final String KEYBOARD_SHORTCUTS_PAGE =
             "https://github.com/HubTurbo/HubTurbo/blob/release/docs/keyboardShortcuts.md";
+    public static final String ALL_TIPS_FILE = "https://raw.githubusercontent.com/ianngiaw/HubTurbo/tip-of-the-day/docs/tips/all-tips.txt";
+
+    public static String getPathForTip(String tip) {
+        return String.format("https://github.com/ianngiaw/HubTurbo/blob/tip-of-the-day/docs/tips/%s", tip);
+    }
 
     public static String getPathForAllIssues(String repoId) {
         return String.format("https://github.com/%s/issues", repoId);
