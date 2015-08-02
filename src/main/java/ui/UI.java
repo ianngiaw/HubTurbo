@@ -161,7 +161,7 @@ public class UI extends Application implements EventDispatcher {
         ensureSelectedPanelHasFocus();
         initialisePickers();
 
-        tipsPopup = new TipsPopup(mainStage, prefs);
+        tipsPopup = new TipsPopup(this, prefs);
         if (prefs.isOpenTipsAtStartup()) {
            showTipsDialog();
         }

@@ -1,80 +1,56 @@
 package ui;
 
 import javafx.geometry.Insets;
-import javafx.scene.Parent;
-import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.Label;
+import javafx.scene.effect.DropShadow;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
-import javafx.scene.paint.Paint;
 import javafx.scene.text.Font;
-import javafx.scene.web.WebEngine;
-import javafx.scene.web.WebView;
+import javafx.scene.text.FontWeight;
 import javafx.stage.Popup;
-import javafx.stage.Stage;
-import javafx.stage.StageStyle;
 import javafx.stage.Window;
-import org.markdown4j.Markdown4jProcessor;
 import prefs.Preferences;
-import tips.TipsFileHandler;
-import ui.components.Dialog;
+import tips.TipsUrlHandler;
 
-import java.io.File;
-import java.io.IOException;
 import java.util.Optional;
 
 public class TipsPopup extends Popup {
 
     private static final String[] AFFECTED_TAGS = {"a", "div", "p", "header", "footer", "h1", "h2", "h3", "h4", "h5", "h6", "span", "ul", "li"};
-    public static final Font TOP_LABEL_FONT = new Font(20.0);
-    public static final Insets TOP_LABEL_PADDING = new Insets(0, 0, 5.0, 0);
-    public static final String TOP_LABEL_TEXT = "Did you know...";
-    public static final String CHECK_BOX_TEXT = "Show at startup";
-    public static final String PREVIOUS_TIP_TEXT = "Previous tip";
-    public static final String NEXT_TIP_TEXT = "Next tip";
-    public static final String CLOSE_TEXT = "Close";
-    public static final String ERROR_LOADING_TIP_TEXT = "Error loading tip";
-    public static final Insets WINDOW_PADDING = new Insets(10.0);
-    public static final Insets CHECK_BOX_PADDING = new Insets(5.0, 0, 5.0, 0);
-    public static final Insets NEXT_TIP_MARGIN = new Insets(0, 5.0, 0, 5.0);
+    private static final Font TOP_LABEL_FONT = new Font(20.0);
+    private static final Insets BOTTOM_PADDING = new Insets(0, 0, 5.0, 0);
+    private static final String TOP_LABEL_TEXT = "Tip of the Day";
+    private static final String CHECK_BOX_TEXT = "Show at startup";
+    private static final String PREVIOUS_TIP_TEXT = "Previous tip";
+    private static final String NEXT_TIP_TEXT = "Next tip";
+    private static final String CLOSE_TEXT = "Close";
+    private static final Insets WINDOW_PADDING = new Insets(10.0);
+    private static final Insets CHECK_BOX_PADDING = new Insets(5.0, 0, 5.0, 0);
+    private static final Insets NEXT_TIP_MARGIN = new Insets(0, 5.0, 0, 5.0);
+    private static final Color UNSELECTED_LABEL_COLOR = Color.web("#888888");
+    private static final Font SELECTED_LABEL_FONT = Font.font(null, FontWeight.BOLD, 15);
 
-    private Stage parentStage;
+    private UI parentUI;
     private Preferences prefs;
-    private Markdown4jProcessor markdownProcessor;
-    private TipsFileHandler tipsFileHandler;
+    private TipsUrlHandler tipsUrlHandler;
 
     private BorderPane container;
     private CheckBox showAtStartupCheckBox;
-    private WebEngine engine;
+    private Label previousTipLabel, currentTipLabel, nextTipLabel;
 
-    public TipsPopup(Stage parentStage, Preferences prefs) {
-        this.parentStage = parentStage;
+    public TipsPopup(UI ui, Preferences prefs) {
+        this.parentUI = ui;
         this.prefs = prefs;
-        this.tipsFileHandler = TipsFileHandler.getInstance(prefs);
-        this.setAutoHide(true);
+        this.tipsUrlHandler = TipsUrlHandler.getInstance(prefs);
         this.setOnHidden(event -> onHide());
-        this.markdownProcessor = new Markdown4jProcessor()
-                .addHtmlAttribute("style", "font-family:sans-serif", AFFECTED_TAGS);
         setContent();
         setValues();
     }
 
     private void setValues() {
         this.showAtStartupCheckBox.setSelected(prefs.isOpenTipsAtStartup());
-
-        setTipContent(tipsFileHandler.getCurrentPath());
-    }
-
-    private void setTipContent (String path) {
-        String html;
-        try {
-            html = markdownProcessor.process(new File(path));
-        } catch (IOException e) {
-            html = ERROR_LOADING_TIP_TEXT;
-        }
-        engine.loadContent(html);
     }
 
     private void setContent() {
@@ -82,12 +58,20 @@ public class TipsPopup extends Popup {
         container.setPadding(WINDOW_PADDING);
         container.setBackground(new Background(new BackgroundFill(Color.web("#EEEEEE"), CornerRadii.EMPTY, Insets.EMPTY)));
         setPopupDimensions();
-        WebView browser = new WebView();
-        engine = browser.getEngine();
 
         Label topLabel = new Label(TOP_LABEL_TEXT);
-        topLabel.setPadding(TOP_LABEL_PADDING);
+        topLabel.setPadding(BOTTOM_PADDING);
         topLabel.setFont(TOP_LABEL_FONT);
+
+        VBox tipSpinner = new VBox();
+        previousTipLabel = new Label();
+        currentTipLabel = new Label();
+        nextTipLabel = new Label();
+        previousTipLabel.setTextFill(UNSELECTED_LABEL_COLOR);
+        currentTipLabel.setFont(SELECTED_LABEL_FONT);
+        nextTipLabel.setTextFill(UNSELECTED_LABEL_COLOR);
+        tipSpinner.getChildren().addAll(previousTipLabel, currentTipLabel, nextTipLabel);
+        tipSpinner.setPadding(BOTTOM_PADDING);
 
         showAtStartupCheckBox = new CheckBox(CHECK_BOX_TEXT);
         showAtStartupCheckBox.setPadding(CHECK_BOX_PADDING);
@@ -105,24 +89,46 @@ public class TipsPopup extends Popup {
         closeButton.setOnMouseClicked(event -> {
             this.hide();
         });
-        nextTipButton.setOnMouseClicked(event -> {
-            Optional<String> path = tipsFileHandler.getNextPath();
-            if (path.isPresent()) {
-                setTipContent(path.get());
-            }
-        });
+        nextTipButton.setOnMouseClicked(event -> {goToNextTip();});
+        nextTipLabel.setOnMouseClicked(event -> {goToNextTip();});
         previousTipButton.setOnMouseClicked(event -> {
-            Optional<String> path = tipsFileHandler.getPreviousPath();
-            if (path.isPresent()) {
-                setTipContent(path.get());
-            }
+            goToPreviousTip();
+        });
+        previousTipLabel.setOnMouseClicked(event -> {
+            goToPreviousTip();
         });
 
         container.setTop(topLabel);
-        container.setCenter(browser);
+        container.setCenter(tipSpinner);
         container.setBottom(bottomContainer);
 
+        DropShadow dropShadow = new DropShadow();
+        dropShadow.setRadius(5.0);
+        dropShadow.setOffsetX(3.0);
+        dropShadow.setOffsetY(3.0);
+        dropShadow.setColor(Color.GRAY);
+        container.setEffect(dropShadow);
+
         this.getContent().add(container);
+    }
+
+    public void showTip(String tip) {
+        parentUI.getBrowserComponent().showTip(tip);
+        if (!prefs.isTipViewed(tip)) {
+            prefs.addTipViewed(tip);
+        }
+    }
+
+    private void goToNextTip() {
+        tipsUrlHandler.goToNextTip();
+        setLabelValues();
+        showTip(tipsUrlHandler.getCurrentTip());
+    }
+
+    private void goToPreviousTip() {
+        tipsUrlHandler.goToPreviousTip();
+        setLabelValues();
+        showTip(tipsUrlHandler.getCurrentTip());
     }
 
     public void onHide() {
@@ -131,7 +137,26 @@ public class TipsPopup extends Popup {
 
     private void setPopupDimensions () {
         container.setMaxWidth(350.0);
+        container.setPrefWidth(350.0);
         container.setMaxHeight(200.0);
+    }
+
+    private void setLabelValues () {
+        Optional<String> previous = tipsUrlHandler.getPreviousTip(), next = tipsUrlHandler.getNextTip();
+        String current = tipsUrlHandler.getCurrentTip();
+        if (previous.isPresent()) {
+            previousTipLabel.setText(previous.get());
+        } else {
+            previousTipLabel.setText("");
+        }
+
+        currentTipLabel.setText(current);
+
+        if (next.isPresent()) {
+            nextTipLabel.setText(next.get());
+        } else {
+            nextTipLabel.setText("");
+        }
     }
 
     private void centerInWindow (Window owner) {
@@ -144,10 +169,18 @@ public class TipsPopup extends Popup {
     @Override
     public void show(Window owner) {
         centerInWindow(owner);
-        owner.heightProperty().addListener((observable, oldValue, newValue) -> {centerInWindow(owner);});
+        owner.heightProperty().addListener((observable, oldValue, newValue) -> {
+            centerInWindow(owner);});
         owner.widthProperty().addListener((observable, oldValue, newValue) -> {centerInWindow(owner);});
-        owner.xProperty().addListener((observable, oldValue, newValue) -> {centerInWindow(owner);});
-        owner.yProperty().addListener((observable, oldValue, newValue) -> {centerInWindow(owner);});
+        owner.xProperty().addListener((observable, oldValue, newValue) -> {
+            centerInWindow(owner);
+        });
+        owner.yProperty().addListener((observable, oldValue, newValue) -> {
+            centerInWindow(owner);
+        });
+
+        this.setLabelValues();
+        showTip(tipsUrlHandler.getCurrentTip());
         super.show(owner);
     }
 }
