@@ -184,6 +184,15 @@ public class BrowserComponent {
     }
 
     /**
+     * Navigates to the HubTurbo tip page.
+     * Run on a separate thread.
+     */
+    public void showTip(String tip) {
+        logger.info("Showing tip " + tip);
+        runBrowserOperation(() -> driver.get(GitHubURL.getPathForTip(tip), false));
+    }
+
+    /**
      * Navigates to the HubTurbo documentation page.
      * Run on a separate thread.
      */
