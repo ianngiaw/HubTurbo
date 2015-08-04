@@ -116,9 +116,9 @@ public class GlobalConfig {
 
     public void setOpenTipsAtStartup(boolean openAtStartup){openTipsAtStartup = openAtStartup;}
 
-    public boolean isTipViewed (String tipPath) {return viewedTips.contains(tipPath);}
+    public boolean isTipViewed (String tip) {return viewedTips.contains(tip);}
 
-    public void addTipViewed (String tipPath) {viewedTips.add(tipPath);}
+    public void addTipViewed (String tip) {viewedTips.add(tip);}
 
     private static byte[] encrypt(String lastPassword) {
         byte[] result = new byte[0];

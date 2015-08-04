@@ -62,9 +62,9 @@ public class Preferences {
 
     public void setOpenTipsAtStartup (boolean openAtStartup) {global.setOpenTipsAtStartup(openAtStartup);}
 
-    public boolean isTipViewed (String tipPath) {return global.isTipViewed(tipPath);}
+    public boolean isTipViewed (String tip) {return global.isTipViewed(tip);}
 
-    public void addTipViewed (String tipPath) {global.addTipViewed(tipPath);}
+    public void addTipViewed (String tip) {global.addTipViewed(tip);}
 
     /**
      * Interface to configuration files
