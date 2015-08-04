@@ -1,5 +1,6 @@
 package ui;
 
+import javafx.application.Platform;
 import javafx.geometry.Insets;
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
@@ -179,7 +180,8 @@ public class TipsPopup extends Popup {
     public void show(Window owner) {
         centerInWindow(owner);
         owner.heightProperty().addListener((observable, oldValue, newValue) -> {
-            centerInWindow(owner);});
+            centerInWindow(owner);
+        });
         owner.widthProperty().addListener((observable, oldValue, newValue) -> {centerInWindow(owner);});
         owner.xProperty().addListener((observable, oldValue, newValue) -> {
             centerInWindow(owner);
@@ -189,7 +191,9 @@ public class TipsPopup extends Popup {
         });
 
         this.setLabelValues();
-        showTip(tipsUrlHandler.getCurrentTipFile());
-        super.show(owner);
+        Platform.runLater(()->{
+            super.show(owner);
+            showTip(tipsUrlHandler.getCurrentTipFile());
+        });
     }
 }
