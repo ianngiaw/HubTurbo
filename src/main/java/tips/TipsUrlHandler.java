@@ -39,7 +39,7 @@ public class TipsUrlHandler {
             }
         }
 
-        while (currentIndex < tipNames.size() && preferences.isTipViewed(tipNames.get(currentIndex))) {
+        while (currentIndex < tipNames.size() && preferences.isTipViewed(getTipFile(getTipLine(currentIndex)))) {
             currentIndex++;
         }
         if (currentIndex >= tipNames.size()) {
