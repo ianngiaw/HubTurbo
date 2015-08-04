@@ -245,7 +245,7 @@ public class MenuControl extends MenuBar {
     private MenuItem createTipsMenuItem(){
         MenuItem tipsMenuItem = new MenuItem("Tips");
         tipsMenuItem.setOnAction(event -> {
-            ui.showTipsDialog();
+            ui.showTipsPopup();
         });
         return tipsMenuItem;
     }

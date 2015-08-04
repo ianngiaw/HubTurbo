@@ -163,11 +163,11 @@ public class UI extends Application implements EventDispatcher {
 
         tipsPopup = new TipsPopup(this, prefs);
         if (prefs.isOpenTipsAtStartup()) {
-           showTipsDialog();
+           showTipsPopup();
         }
     }
 
-    public void showTipsDialog() {
+    public void showTipsPopup() {
         tipsPopup.show(this.mainStage);
     }
 
