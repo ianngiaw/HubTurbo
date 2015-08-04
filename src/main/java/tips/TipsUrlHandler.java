@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Optional;
 
 public class TipsUrlHandler {
+    public static final String LINE_SPLITTER = "###";
     private static TipsUrlHandler instance;
 
     private Preferences preferences;
@@ -65,25 +66,37 @@ public class TipsUrlHandler {
         }
     }
 
-    public Optional<String> getNextTip() {
+    public Optional<String> getNextTipName() {
         if (tipNames.size() - 1 > currentIndex) {
-            return Optional.of(getTip(currentIndex + 1));
+            return Optional.of(getTipName(getTipLine(currentIndex + 1)));
         }
         return Optional.empty();
     }
 
-    public  Optional<String> getPreviousTip() {
+    public  Optional<String> getPreviousTipName() {
         if (currentIndex >= 1) {
-            return Optional.of(getTip(currentIndex - 1));
+            return Optional.of(getTipName(getTipLine(currentIndex - 1)));
         }
         return Optional.empty();
     }
 
-    public String getCurrentTip() {
-        return getTip(currentIndex);
+    public String getCurrentTipName() {
+        return getTipName(getTipLine(currentIndex));
     }
 
-    private String getTip(int index) {
+    public String getCurrentTipFile() {
+        return getTipFile(getTipLine(currentIndex));
+    }
+
+    private String getTipLine(int index) {
         return tipNames.get(index);
+    }
+
+    private String getTipName(String tipLine) {
+        return tipLine.split(LINE_SPLITTER)[0].trim();
+    }
+
+    private String getTipFile(String tipLine) {
+        return tipLine.split(LINE_SPLITTER)[1].trim();
     }
 }

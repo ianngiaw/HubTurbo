@@ -1,6 +1,6 @@
-tip-1-boards.md
-tip-2-panels.md
-tip-3-filters.md
-tip-4-issuesAndPRs.md
-tip-5-labels.md
-tip-6-milestones.md
+Tip 1: Boards           ### tip-1-boards.md
+Tip 2: Panels           ### tip-2-panels.md
+Tip 3: Filters          ### tip-3-filters.md
+Tip 4: Issues and PRs   ### tip-4-issuesAndPRs.md
+Tip 5: Labels           ### tip-5-labels.md
+Tip 6: Milestones       ### tip-6-milestones.md

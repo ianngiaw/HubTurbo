@@ -131,13 +131,13 @@ public class TipsPopup extends Popup {
     private void goToNextTip() {
         tipsUrlHandler.goToNextTip();
         setLabelValues();
-        showTip(tipsUrlHandler.getCurrentTip());
+        showTip(tipsUrlHandler.getCurrentTipFile());
     }
 
     private void goToPreviousTip() {
         tipsUrlHandler.goToPreviousTip();
         setLabelValues();
-        showTip(tipsUrlHandler.getCurrentTip());
+        showTip(tipsUrlHandler.getCurrentTipFile());
     }
 
     public void onHide() {
@@ -151,8 +151,8 @@ public class TipsPopup extends Popup {
     }
 
     private void setLabelValues () {
-        Optional<String> previous = tipsUrlHandler.getPreviousTip(), next = tipsUrlHandler.getNextTip();
-        String current = tipsUrlHandler.getCurrentTip();
+        Optional<String> previous = tipsUrlHandler.getPreviousTipName(), next = tipsUrlHandler.getNextTipName();
+        String current = tipsUrlHandler.getCurrentTipName();
         if (previous.isPresent()) {
             previousTipLabel.setText(previous.get());
         } else {
@@ -189,7 +189,7 @@ public class TipsPopup extends Popup {
         });
 
         this.setLabelValues();
-        showTip(tipsUrlHandler.getCurrentTip());
+        showTip(tipsUrlHandler.getCurrentTipFile());
         super.show(owner);
     }
 }
