@@ -18,8 +18,7 @@ import java.util.Optional;
 
 public class TipsPopup extends Popup {
 
-    private static final String[] AFFECTED_TAGS = {"a", "div", "p", "header", "footer", "h1", "h2", "h3", "h4", "h5", "h6", "span", "ul", "li"};
-    private static final Font TOP_LABEL_FONT = new Font(20.0);
+    private static final Font TOP_LABEL_FONT = Font.font(null, FontWeight.BOLD, 20);
     private static final Insets BOTTOM_PADDING = new Insets(0, 0, 5.0, 0);
     private static final String TOP_LABEL_TEXT = "Tip of the Day";
     private static final String CHECK_BOX_TEXT = "Show at startup";
@@ -28,9 +27,11 @@ public class TipsPopup extends Popup {
     private static final String CLOSE_TEXT = "Close";
     private static final Insets WINDOW_PADDING = new Insets(10.0);
     private static final Insets CHECK_BOX_PADDING = new Insets(5.0, 0, 5.0, 0);
-    private static final Insets NEXT_TIP_MARGIN = new Insets(0, 5.0, 0, 5.0);
+    private static final Insets NEXT_TIP_MARGIN = new Insets(0, 10.0, 0, 10.0);
     private static final Color UNSELECTED_LABEL_COLOR = Color.web("#888888");
     private static final Font SELECTED_LABEL_FONT = Font.font(null, FontWeight.BOLD, 15);
+    private static final String CURRENT_TIP_POINTER_TEXT = ">";
+    private static final Background POPUP_BACKGROUND = new Background(new BackgroundFill(Color.web("#EEEEEE"), new CornerRadii(5.0), Insets.EMPTY));
 
     private UI parentUI;
     private Preferences prefs;
@@ -56,7 +57,7 @@ public class TipsPopup extends Popup {
     private void setContent() {
         container = new BorderPane();
         container.setPadding(WINDOW_PADDING);
-        container.setBackground(new Background(new BackgroundFill(Color.web("#EEEEEE"), CornerRadii.EMPTY, Insets.EMPTY)));
+        container.setBackground(POPUP_BACKGROUND);
         setPopupDimensions();
 
         Label topLabel = new Label(TOP_LABEL_TEXT);
@@ -65,12 +66,16 @@ public class TipsPopup extends Popup {
 
         VBox tipSpinner = new VBox();
         previousTipLabel = new Label();
+        HBox currentTipHBox = new HBox();
+        Label currentTipPointer = new Label(CURRENT_TIP_POINTER_TEXT);
+        currentTipPointer.setFont(SELECTED_LABEL_FONT);
         currentTipLabel = new Label();
         nextTipLabel = new Label();
         previousTipLabel.setTextFill(UNSELECTED_LABEL_COLOR);
         currentTipLabel.setFont(SELECTED_LABEL_FONT);
         nextTipLabel.setTextFill(UNSELECTED_LABEL_COLOR);
-        tipSpinner.getChildren().addAll(previousTipLabel, currentTipLabel, nextTipLabel);
+        currentTipHBox.getChildren().addAll(currentTipPointer, currentTipLabel);
+        tipSpinner.getChildren().addAll(previousTipLabel, currentTipHBox, nextTipLabel);
         tipSpinner.setPadding(BOTTOM_PADDING);
 
         showAtStartupCheckBox = new CheckBox(CHECK_BOX_TEXT);
@@ -89,8 +94,12 @@ public class TipsPopup extends Popup {
         closeButton.setOnMouseClicked(event -> {
             this.hide();
         });
-        nextTipButton.setOnMouseClicked(event -> {goToNextTip();});
-        nextTipLabel.setOnMouseClicked(event -> {goToNextTip();});
+        nextTipButton.setOnMouseClicked(event -> {
+            goToNextTip();
+        });
+        nextTipLabel.setOnMouseClicked(event -> {
+            goToNextTip();
+        });
         previousTipButton.setOnMouseClicked(event -> {
             goToPreviousTip();
         });
