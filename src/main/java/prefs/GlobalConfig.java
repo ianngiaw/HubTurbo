@@ -29,8 +29,9 @@ public class GlobalConfig {
     private Map<String, List<String>> boards = new HashMap<>();
     private Map<String, Map<Integer, LocalDateTime>> markedReadTimes = new HashMap<>();
     private Map<String, String> keyboardShortcuts = new HashMap<>();
-    private boolean openTipsAtStartup = true;
-    private List<String> viewedTips = new ArrayList<>();
+    private boolean showTipsAtStartup = true;
+    private List<String> confirmedReadTips = new ArrayList<>();
+    private List<String> possiblyReadTips = new ArrayList<>();
 
     public GlobalConfig() {
     }
@@ -112,13 +113,32 @@ public class GlobalConfig {
         this.lastLoginPassword = encrypt(password);
     }
 
-    public boolean isOpenTipsAtStartup () {return openTipsAtStartup;}
+    public boolean showTipsAtStartup() {
+        return showTipsAtStartup;
+    }
 
-    public void setOpenTipsAtStartup(boolean openAtStartup){openTipsAtStartup = openAtStartup;}
+    public void setShowTipsAtStartup(boolean showAtStartup){
+        showTipsAtStartup = showAtStartup;
+    }
 
-    public boolean isTipViewed (String tip) {return viewedTips.contains(tip);}
+    public boolean isTipConfirmedRead(String tip) {
+        return confirmedReadTips.contains(tip);
+    }
 
-    public void addTipViewed (String tip) {viewedTips.add(tip);}
+    public void markTipAsConfirmedRead(String tip) {
+        if (isTipPossiblyRead(tip)) {
+            possiblyReadTips.remove(tip);
+        }
+        confirmedReadTips.add(tip);
+    }
+
+    public boolean isTipPossiblyRead(String tip) {
+        return possiblyReadTips.contains(tip);
+    }
+
+    public void markTipAsPossiblyRead(String tip) {
+        possiblyReadTips.add(tip);
+    }
 
     private static byte[] encrypt(String lastPassword) {
         byte[] result = new byte[0];

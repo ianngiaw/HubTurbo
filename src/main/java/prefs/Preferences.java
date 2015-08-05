@@ -58,13 +58,29 @@ public class Preferences {
         global.setLastOpenFilters(filter);
     }
 
-    public boolean isOpenTipsAtStartup () {return global.isOpenTipsAtStartup();}
+    public boolean showTipsAtStartup() {
+        return global.showTipsAtStartup();
+    }
 
-    public void setOpenTipsAtStartup (boolean openAtStartup) {global.setOpenTipsAtStartup(openAtStartup);}
+    public void setShowTipsAtStartup(boolean showAtStartup) {
+        global.setShowTipsAtStartup(showAtStartup);
+    }
 
-    public boolean isTipViewed (String tip) {return global.isTipViewed(tip);}
+    public boolean isTipConfirmedRead(String tip) {
+        return global.isTipConfirmedRead(tip);
+    }
 
-    public void addTipViewed (String tip) {global.addTipViewed(tip);}
+    public void markTipAsConfirmedRead(String tip) {
+        global.markTipAsConfirmedRead(tip);
+    }
+
+    public boolean isTipPossiblyRead(String tip) {
+        return global.isTipPossiblyRead(tip);
+    }
+
+    public void markTipAsPossiblyRead(String tip) {
+        global.markTipAsPossiblyRead(tip);
+    }
 
     /**
      * Interface to configuration files
