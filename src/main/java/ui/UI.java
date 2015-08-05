@@ -162,7 +162,7 @@ public class UI extends Application implements EventDispatcher {
         initialisePickers();
 
         tipsPopup = new TipsPopup(this, prefs);
-        if (prefs.isOpenTipsAtStartup()) {
+        if (prefs.showTipsAtStartup() && tipsPopup.hasUnreadTips()) {
            showTipsPopup();
         }
     }
