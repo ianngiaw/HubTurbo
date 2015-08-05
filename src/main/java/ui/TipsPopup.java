@@ -13,7 +13,7 @@ import javafx.scene.text.FontWeight;
 import javafx.stage.Popup;
 import javafx.stage.Window;
 import prefs.Preferences;
-import tips.TipsUrlHandler;
+import tips.TipsHandler;
 
 import java.util.Optional;
 
@@ -22,7 +22,7 @@ public class TipsPopup extends Popup {
     private static final Font TOP_LABEL_FONT = Font.font(null, FontWeight.BOLD, 20);
     private static final Insets BOTTOM_PADDING = new Insets(0, 0, 5.0, 0);
     private static final String TOP_LABEL_TEXT = "Tip of the Day";
-    private static final String CHECK_BOX_TEXT = "Show at startup";
+    private static final String CHECK_BOX_TEXT = "Show at startup when there are unread tips available";
     private static final String PREVIOUS_TIP_TEXT = "Previous tip";
     private static final String NEXT_TIP_TEXT = "Next tip";
     private static final String CLOSE_TEXT = "Close";
@@ -36,7 +36,7 @@ public class TipsPopup extends Popup {
 
     private UI parentUI;
     private Preferences prefs;
-    private TipsUrlHandler tipsUrlHandler;
+    private TipsHandler tipsHandler;
 
     private BorderPane container;
     private CheckBox showAtStartupCheckBox;
@@ -45,14 +45,14 @@ public class TipsPopup extends Popup {
     public TipsPopup(UI ui, Preferences prefs) {
         this.parentUI = ui;
         this.prefs = prefs;
-        this.tipsUrlHandler = TipsUrlHandler.getInstance(prefs);
+        this.tipsHandler = TipsHandler.getInstance(prefs);
         this.setOnHidden(event -> onHide());
         setContent();
         setValues();
     }
 
     private void setValues() {
-        this.showAtStartupCheckBox.setSelected(prefs.isOpenTipsAtStartup());
+        this.showAtStartupCheckBox.setSelected(prefs.showTipsAtStartup());
     }
 
     private void setContent() {
@@ -82,15 +82,17 @@ public class TipsPopup extends Popup {
         showAtStartupCheckBox = new CheckBox(CHECK_BOX_TEXT);
         showAtStartupCheckBox.setPadding(CHECK_BOX_PADDING);
 
-        HBox bottomContainer = new HBox();
+        VBox bottomContainer = new VBox();
+        HBox buttonContainer = new HBox();
         Pane rightAlignPane = new Pane();
         Button previousTipButton = new Button(PREVIOUS_TIP_TEXT);
         Button nextTipButton = new Button(NEXT_TIP_TEXT);
         Button closeButton = new Button(CLOSE_TEXT);
-        bottomContainer.getChildren().addAll(showAtStartupCheckBox, rightAlignPane,
+        buttonContainer.getChildren().addAll(rightAlignPane,
                 previousTipButton, nextTipButton, closeButton);
-        bottomContainer.setHgrow(rightAlignPane, Priority.ALWAYS);
-        bottomContainer.setMargin(nextTipButton, NEXT_TIP_MARGIN);
+        buttonContainer.setHgrow(rightAlignPane, Priority.ALWAYS);
+        buttonContainer.setMargin(nextTipButton, NEXT_TIP_MARGIN);
+        bottomContainer.getChildren().addAll(showAtStartupCheckBox, buttonContainer);
 
         closeButton.setOnMouseClicked(event -> {
             this.hide();
@@ -124,25 +126,35 @@ public class TipsPopup extends Popup {
 
     public void showTip(String tip) {
         parentUI.getBrowserComponent().showTip(tip);
-        if (!prefs.isTipViewed(tip)) {
-            prefs.addTipViewed(tip);
+        if (prefs.isTipPossiblyRead(tip)) {
+            prefs.markTipAsConfirmedRead(tip);
+        } else if (!prefs.isTipConfirmedRead(tip)) {
+            prefs.markTipAsPossiblyRead(tip);
         }
     }
 
+    public boolean hasUnreadTips() {
+        return tipsHandler.hasUnreadTips();
+    }
+
     private void goToNextTip() {
-        tipsUrlHandler.goToNextTip();
+        String currentTip = tipsHandler.getCurrentTipFile();
+        if (!prefs.isTipConfirmedRead(currentTip)) {
+            prefs.markTipAsConfirmedRead(currentTip);
+        }
+        tipsHandler.goToNextTip();
         setLabelValues();
-        showTip(tipsUrlHandler.getCurrentTipFile());
+        showTip(tipsHandler.getCurrentTipFile());
     }
 
     private void goToPreviousTip() {
-        tipsUrlHandler.goToPreviousTip();
+        tipsHandler.goToPreviousTip();
         setLabelValues();
-        showTip(tipsUrlHandler.getCurrentTipFile());
+        showTip(tipsHandler.getCurrentTipFile());
     }
 
     public void onHide() {
-        prefs.setOpenTipsAtStartup(showAtStartupCheckBox.isSelected());
+        prefs.setShowTipsAtStartup(showAtStartupCheckBox.isSelected());
     }
 
     private void setPopupDimensions () {
@@ -152,8 +164,8 @@ public class TipsPopup extends Popup {
     }
 
     private void setLabelValues () {
-        Optional<String> previous = tipsUrlHandler.getPreviousTipName(), next = tipsUrlHandler.getNextTipName();
-        String current = tipsUrlHandler.getCurrentTipName();
+        Optional<String> previous = tipsHandler.getPreviousTipName(), next = tipsHandler.getNextTipName();
+        String current = tipsHandler.getCurrentTipName();
         if (previous.isPresent()) {
             previousTipLabel.setText(previous.get());
         } else {
@@ -193,7 +205,7 @@ public class TipsPopup extends Popup {
         this.setLabelValues();
         Platform.runLater(()->{
             super.show(owner);
-            showTip(tipsUrlHandler.getCurrentTipFile());
+            showTip(tipsHandler.getCurrentTipFile());
         });
     }
 }
