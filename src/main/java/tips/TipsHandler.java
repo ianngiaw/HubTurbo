@@ -10,15 +10,15 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-public class TipsUrlHandler {
+public class TipsHandler {
     public static final String LINE_SPLITTER = "###";
-    private static TipsUrlHandler instance;
+    private static TipsHandler instance;
 
     private Preferences preferences;
     private List<String> tipNames;
     private int currentIndex = 0;
 
-    private TipsUrlHandler(Preferences preferences) {
+    private TipsHandler(Preferences preferences) {
         this.preferences = preferences;
         URL allTipsUrl = null;
         try {
@@ -47,9 +47,9 @@ public class TipsUrlHandler {
         }
     }
 
-    public static TipsUrlHandler getInstance (Preferences preferences) {
+    public static TipsHandler getInstance (Preferences preferences) {
         if (instance == null) {
-            instance = new TipsUrlHandler(preferences);
+            instance = new TipsHandler(preferences);
         }
         return instance;
     }
