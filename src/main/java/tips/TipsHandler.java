@@ -15,7 +15,7 @@ public class TipsHandler {
     private static TipsHandler instance;
 
     private Preferences preferences;
-    private List<String> tipNames;
+    private List<String> tipLines;
     private int currentIndex = 0;
 
     private TipsHandler(Preferences preferences) {
@@ -26,24 +26,33 @@ public class TipsHandler {
         } catch (MalformedURLException e) {
             // Error
         }
-        tipNames = new ArrayList<>();
+        tipLines = new ArrayList<>();
+        List<String> tempTipLines = new ArrayList<>();
         if (allTipsUrl != null) {
             try (BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(allTipsUrl.openStream()))) {
                 String line;
                 while ((line = bufferedReader.readLine()) != null) {
-                    tipNames.add(line);
+                    tempTipLines.add(line);
                 }
                 bufferedReader.close();
             } catch (IOException e) {
                 // catch exception
             }
         }
+        int readIndex = 0;
+        for (String tipLine : tempTipLines) {
+            if (preferences.isTipConfirmedRead(getTipFile(tipLine))) {
+                tipLines.add(readIndex++, tipLine);
+            } else {
+                tipLines.add(tipLine);
+            }
+        }
 
-        while (currentIndex < tipNames.size() && preferences.isTipViewed(getTipFile(getTipLine(currentIndex)))) {
+        while (currentIndex < tipLines.size() && preferences.isTipConfirmedRead(getTipFile(getTipLine(currentIndex)))) {
             currentIndex++;
         }
-        if (currentIndex >= tipNames.size()) {
-            currentIndex = tipNames.size() - 1;
+        if (currentIndex >= tipLines.size()) {
+            currentIndex = tipLines.size() - 1;
         }
     }
 
@@ -54,8 +63,17 @@ public class TipsHandler {
         return instance;
     }
 
+    public boolean hasUnreadTips () {
+        for (String tipLine : tipLines) {
+            if (!preferences.isTipConfirmedRead(getTipFile(tipLine))){
+                return true;
+            }
+        }
+        return false;
+    }
+
     public void goToNextTip() {
-        if (tipNames.size() - 1 > currentIndex) {
+        if (tipLines.size() - 1 > currentIndex) {
             currentIndex++;
         }
     }
@@ -67,7 +85,7 @@ public class TipsHandler {
     }
 
     public Optional<String> getNextTipName() {
-        if (tipNames.size() - 1 > currentIndex) {
+        if (tipLines.size() - 1 > currentIndex) {
             return Optional.of(getTipName(getTipLine(currentIndex + 1)));
         }
         return Optional.empty();
@@ -89,7 +107,7 @@ public class TipsHandler {
     }
 
     private String getTipLine(int index) {
-        return tipNames.get(index);
+        return tipLines.get(index);
     }
 
     private String getTipName(String tipLine) {
